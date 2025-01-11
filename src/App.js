@@ -6,12 +6,26 @@ import MoviesList from "./MoviesList";
 
 function App() {
     const [movies, setMovies] = useState([]);
+    const [addingMovie, setAddingMovie] = useState(false);
+
+    function handleAddMovie(movie) {
+        setMovies([...movies, movie]);
+        setAddingMovie(false);
+    }
 
     return (
         <div className="container">
             <h1>My favourite movies to watch</h1>
-            <MoviesList movies={movies}/>
-            <MovieForm onMovieSubmit={(movie) => setMovies([...movies, movie])} buttonLabel="Add a movie"/>
+            {movies.length === 0
+                ? <p>No movies yet. Maybe add something?</p>
+                : <MoviesList movies={movies}
+                              onDeleteMovie={(movie) => setMovies(movies.filter(m => m !== movie))}
+                />}
+            {addingMovie
+                ? <MovieForm onMovieSubmit={handleAddMovie}
+                             buttonLabel="Add a movie"
+                />
+                : <button onClick={() => setAddingMovie(true)}>Add a movie</button>}
         </div>
     );
 }
