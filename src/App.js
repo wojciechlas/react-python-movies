@@ -2,6 +2,7 @@ import './App.css';
 import {useState} from "react";
 import "milligram";
 import MovieForm from "./MovieForm";
+import MoviesList from "./MoviesList";
 
 function App() {
     const [movies, setMovies] = useState([]);
@@ -9,10 +10,7 @@ function App() {
     return (
         <div className="container">
             <h1>My favourite movies to watch</h1>
-            <h2>Titles</h2>
-            <ul>
-                {movies.map(movie => <li key={movie.title}>{movie.title} ({movie.year})</li>)}
-            </ul>
+            <MoviesList movies={movies}/>
             <MovieForm onMovieSubmit={(movie) => setMovies([...movies, movie])} buttonLabel="Add a movie"/>
         </div>
     );
