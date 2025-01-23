@@ -1,9 +1,16 @@
 export default function MovieListItem(props) {
-    return <span>
-        <strong>{props.movie.title}</strong>
-        {' '}
-        <span>({props.movie.year})</span>
-        {' '}
-        <a onClick={props.onDelete}>Delete</a>
-    </span>;
+    return (
+        <div>
+            <div>
+                <strong>{props.movie.title}</strong>
+                {' '}
+                <span>({props.movie.year})</span>
+                {' '}
+                directed by {props.movie.director}
+                {' '}
+                <a onClick={props.onDelete}>Delete</a>
+            </div>
+            {props.movie.description}
+        </div>
+    );
 }
