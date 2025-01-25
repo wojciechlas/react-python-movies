@@ -1,10 +1,10 @@
 import {useState} from "react";
 
 export default function MovieForm(props) {
-    const [title, setTitle] = useState('');
-    const [year, setYear] = useState('');
-    const [director, setDirector] = useState('');
-    const [description, setDescription] = useState('');
+    const [title, setTitle] = useState(props.movie.title);
+    const [year, setYear] = useState(props.movie.year);
+    const [director, setDirector] = useState(props.movie.director);
+    const [description, setDescription] = useState(props.movie.description);
 
     function addMovie(event) {
         event.preventDefault();
@@ -19,9 +19,9 @@ export default function MovieForm(props) {
     }
 
     return <form onSubmit={addMovie}>
-        <h2>Add movie</h2>
+        <h2>{props.title}</h2>
         <div>
-            <label>Tytuł</label>
+            <label>Title</label>
             <input type="text" value={title} onChange={(event) => setTitle(event.target.value)}/>
         </div>
         <div>

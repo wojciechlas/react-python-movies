@@ -8,7 +8,9 @@ import ActorForm from "./ActorForm";
 
 function App() {
     const [movies, setMovies] = useState([]);
+    const [movie, setMovie] = useState([]);
     const [addingMovie, setAddingMovie] = useState(false);
+    const [editingMovie, setEditingMovie] = useState(false);
 
     useEffect(() => {
         const fetchMovies = async () => {
@@ -41,6 +43,22 @@ function App() {
         if (response.ok) {
             setMovies(movies.filter(m => m !== movie));
         }
+    }
+
+    async function handleEditMovie(movie_to_edit) {
+        setMovie(movie_to_edit)
+        setEditingMovie(true);
+
+        const response = await fetch(`/movies/${movie.id}`, {
+            method: 'POST',
+            body: JSON.stringify(movie),
+            headers: { 'Content-Type': 'application/json' }
+        });
+        if (response.ok) {
+            setMovies([...movies, movie]);
+            setEditingMovie(false);
+        }
+        
     }
 
     const [actors, setActors] = useState([]);
@@ -90,12 +108,23 @@ function App() {
                         ? <p>No movies yet. Maybe add something?</p>
                         : <MoviesList movies={movies}
                                         onDeleteMovie={handleDeleteMovie}
+                                        onEditMovie={handleEditMovie}
                         />}
                     {addingMovie
                         ? <MovieForm onMovieSubmit={handleAddMovie}
+                                        title="Add movie"
                                         buttonLabel="Add a movie"
+                                        movie={{}}
                         />
                         : <button onClick={() => setAddingMovie(true)}>Add a movie</button>}
+                    {editingMovie
+                        ? <MovieForm onMovieSubmit={handleEditMovie}
+                                        title="Edit movie"
+                                        buttonLabel="Save changes"
+                                        movie={movie}
+                        />
+                        : <div></div>}
+
                 </div>
                 <div class="column">
                     {actors.length === 0

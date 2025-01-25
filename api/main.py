@@ -37,6 +37,16 @@ def get_movie(movie_id: int):
     return db_movie
 
 
+@app.patch("/movies/{movie_id}", response_model=schemas.Movie)
+def update_movie(movie_id: int, movie: schemas.MovieBase):
+    db_movie = models.Movie.filter(models.Movie.id == movie_id).first()
+    if db_movie is None:
+        raise HTTPException(status_code=404, detail="Movie not found")
+    update_data = movie.dict(exclude_unset=True)
+    updated_movie = models.Movie.copy(update=update_data)
+    return updated_movie
+
+
 @app.delete("/movies/{movie_id}", response_model=schemas.Movie)
 def delete_movie(movie_id: int):
     db_movie = models.Movie.filter(models.Movie.id == movie_id).first()
