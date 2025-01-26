@@ -13,15 +13,16 @@ function App() {
     const [editingMovie, setEditingMovie] = useState(false);
 
     useEffect(() => {
-        const fetchMovies = async () => {
-            const response = await fetch('/movies');
-            if (response.ok) {
-                const movies = await response.json();
-                setMovies(movies);
-            }
-        };
         fetchMovies();
     }, []);
+
+    async function fetchMovies() {
+        const response = await fetch('/movies');
+        if (response.ok) {
+            const movies = await response.json();
+            setMovies(movies);
+        }
+    }
 
     async function handleAddMovie(movie) {
         const response = await fetch('/movies', {
@@ -45,17 +46,19 @@ function App() {
         }
     }
 
-    async function handleEditMovie(movie_to_edit) {
-        setMovie(movie_to_edit)
+    async function handleOpenEditMovie(movie) {
+        setMovie(movie)
         setEditingMovie(true);
+    }
 
+    async function handleEditMovie(edited_movie) {
         const response = await fetch(`/movies/${movie.id}`, {
-            method: 'POST',
-            body: JSON.stringify(movie),
+            method: 'PUT',
+            body: JSON.stringify(edited_movie),
             headers: { 'Content-Type': 'application/json' }
         });
         if (response.ok) {
-            setMovies([...movies, movie]);
+            fetchMovies();
             setEditingMovie(false);
         }
         
@@ -108,7 +111,7 @@ function App() {
                         ? <p>No movies yet. Maybe add something?</p>
                         : <MoviesList movies={movies}
                                         onDeleteMovie={handleDeleteMovie}
-                                        onEditMovie={handleEditMovie}
+                                        onEditMovie={handleOpenEditMovie}
                         />}
                     {addingMovie
                         ? <MovieForm onMovieSubmit={handleAddMovie}

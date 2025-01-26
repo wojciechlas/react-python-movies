@@ -37,14 +37,22 @@ def get_movie(movie_id: int):
     return db_movie
 
 
-@app.patch("/movies/{movie_id}", response_model=schemas.Movie)
+@app.put("/movies/{movie_id}", response_model=schemas.Movie)
 def update_movie(movie_id: int, movie: schemas.MovieBase):
-    db_movie = models.Movie.filter(models.Movie.id == movie_id).first()
+    db_movie: models.Movie = models.Movie.filter(models.Movie.id == movie_id).first()
     if db_movie is None:
-        raise HTTPException(status_code=404, detail="Movie not found")
-    update_data = movie.dict(exclude_unset=True)
-    updated_movie = models.Movie.copy(update=update_data)
-    return updated_movie
+         raise HTTPException(status_code=404, detail="Movie not found")
+    
+    # Update the fields in the instance
+    db_movie.title = movie.title
+    db_movie.director = movie.director
+    db_movie.year = movie.year
+    db_movie.description = movie.description
+    # Add more fields as necessary
+
+    # Save the updated instance back to the database
+    db_movie.save()
+    return db_movie
 
 
 @app.delete("/movies/{movie_id}", response_model=schemas.Movie)
