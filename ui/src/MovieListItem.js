@@ -12,7 +12,7 @@ export default function MovieListItem(props) {
                 {' '}
                 <a onClick={props.onDelete}>Delete</a>
             </div>
-            {props.movie.description}
+            {props.movie.description}<br/>          
         </div>
     );
 }

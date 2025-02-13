@@ -24,6 +24,15 @@ function App() {
         }
     }
 
+    async function fetchMovieActors(movieId) {
+        const response = await fetch(`/movies/${movieId}/actors`);
+        if (response.ok) {
+          const actors = await response.json();
+          return actors;
+        }
+        return;
+      }
+
     async function handleAddMovie(movie) {
         const response = await fetch('/movies', {
             method: 'POST',
@@ -47,7 +56,8 @@ function App() {
     }
 
     async function handleOpenEditMovie(movie) {
-        setMovie(movie)
+        const actors = await fetchMovieActors(movie.id);
+        setMovie({...movie, actors: actors });
         setEditingMovie(true);
     }
 
@@ -115,6 +125,7 @@ function App() {
                         />}
                     {addingMovie
                         ? <MovieForm onMovieSubmit={handleAddMovie}
+                                        onCancel={() => setAddingMovie(false)}
                                         title="Add movie"
                                         buttonLabel="Add a movie"
                                         movie={{}}
@@ -122,6 +133,7 @@ function App() {
                         : <button onClick={() => setAddingMovie(true)}>Add a movie</button>}
                     {editingMovie
                         ? <MovieForm onMovieSubmit={handleEditMovie}
+                                        onCancel={() => setEditingMovie(false)}
                                         title="Edit movie"
                                         buttonLabel="Save changes"
                                         movie={movie}

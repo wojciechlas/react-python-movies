@@ -1,12 +1,38 @@
 POST http://127.0.0.1:8000/movies
 Content-Type: application/json
 
-{
-  "title": "title1",
-  "year": 1923,
-  "director": "director1",
-  "description": ""
-}
+[
+  {
+    "title": "Skazani na Shawshank",
+    "year": 1994,
+    "director": "Frank Darabont",
+    "description": "Dwóch mężczyzn, niesłusznie skazanych na dożywocie, zawiera niezwykłą przyjaźń w więzieniu Shawshank. Ich relacja staje się źródłem nadziei i siły w trudnych czasach."
+  },
+  {
+    "title": "Ojciec chrzestny",
+    "year": 1972,
+    "director": "Francis Ford Coppola",
+    "description": "Rodzina Corleone, potężna mafia z Nowego Jorku, walczy o utrzymanie swojej pozycji w świecie przestępczym. Film opowiada o losach Vita Corleone i jego syna Michaela, który przejmuje rodzinny interes."
+  },
+  {
+    "title": "Mroczny rycerz",
+    "year": 2008,
+    "director": "Christopher Nolan",
+    "description": "Batman stawia czoła Jokerowi, psychopatycznemu geniuszowi zbrodni, który sieje chaos w Gotham City. Film porusza tematy moralności, sprawiedliwości i poświęcenia."
+  },
+  {
+    "title": "Dwunastu gniewnych ludzi",
+    "year": 1957,
+    "director": "Sidney Lumet",
+    "description": "Ława przysięgłych decyduje o losie młodego mężczyzny oskarżonego o morderstwo. Początkowo wszyscy są przekonani o jego winie, ale jeden z przysięgłych zaczyna kwestionować dowody."
+  },
+  {
+    "title": "Lista Schindlera",
+    "year": 1993,
+    "director": "Steven Spielberg",
+    "description": "Oskar Schindler, niemiecki biznesmen, ratuje życie tysiącom Żydów podczas Holokaustu, zatrudniając ich w swojej fabryce. Film oparty na prawdziwej historii."
+  }
+]
 
 ###
 
