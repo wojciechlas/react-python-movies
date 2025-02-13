@@ -84,7 +84,9 @@ export default function MovieForm(props) {
                 }}
             />
         </div>
-        <button>{props.buttonLabel || 'Submit'}</button>
-        <button type="button" onClick={props.onCancel}>Cancel</button>
+        <div>
+            <button>{props.buttonLabel || 'Submit'}</button>
+            <button type="button" onClick={props.onCancel} style={{ marginLeft: "5px" }}>Cancel</button>
+        </div>
     </form>;
 }

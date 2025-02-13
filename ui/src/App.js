@@ -1,16 +1,22 @@
 import './App.css';
 import {useState, useEffect} from "react";
 import "milligram";
+
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import MovieForm from "./MovieForm";
 import MoviesList from "./MoviesList";
 import ActorsList from "./ActorsList";
 import ActorForm from "./ActorForm";
+import SearchBar from './SearchBar';
 
 function App() {
     const [movies, setMovies] = useState([]);
     const [movie, setMovie] = useState([]);
     const [addingMovie, setAddingMovie] = useState(false);
     const [editingMovie, setEditingMovie] = useState(false);
+    const [searchResults, setSearchResults] = useState([]);
 
     useEffect(() => {
         fetchMovies();
@@ -22,6 +28,7 @@ function App() {
             const movies = await response.json();
             setMovies(movies);
         }
+        console.log(movies)
     }
 
     async function fetchMovieActors(movieId) {
@@ -34,24 +41,43 @@ function App() {
       }
 
     async function handleAddMovie(movie) {
-        const response = await fetch('/movies', {
+        try {
+          const response = await fetch('/movies', {
             method: 'POST',
             body: JSON.stringify(movie),
             headers: { 'Content-Type': 'application/json' }
-        });
-
-        if (response.ok) {
+          });
+      
+          if (response.ok) {
             setMovies([...movies, movie]);
             setAddingMovie(false);
+            toast.success(`Movie "${movie.title}" added`);
+          } else {
+            const error = await response.json();
+            toast.error(`Error while adding movie: ${error.detail}`);
+          }
+        } catch (error) {
+          toast.error(`Error while adding movie: ${error.message}`);
         }
     }
 
     async function handleDeleteMovie(movie) {
-        const response = await fetch(`/movies/${movie.id}`, {
-            method: 'DELETE'
-        });
-        if (response.ok) {
-            setMovies(movies.filter(m => m !== movie));
+        const confirmDelete = window.confirm(`Are you sure to delete "${movie.title}"?`);
+        if (confirmDelete) {
+            try {
+                const response = await fetch(`/movies/${movie.id}`, {
+                    method: 'DELETE'
+                });
+                if (response.ok) {
+                    setMovies(movies.filter(m => m !== movie));
+                    toast.success(`Movie "${movie.title}" deleted`);
+                } else {
+                    const error = await response.json();
+                    toast.error(`Error while deleting movie: ${error.detail}`);
+                }
+            } catch (error) {
+                toast.error(`Error while deleting movie: ${error.message}`);
+            }
         }
     }
 
@@ -62,16 +88,23 @@ function App() {
     }
 
     async function handleEditMovie(edited_movie) {
-        const response = await fetch(`/movies/${movie.id}`, {
-            method: 'PUT',
-            body: JSON.stringify(edited_movie),
-            headers: { 'Content-Type': 'application/json' }
-        });
-        if (response.ok) {
-            fetchMovies();
-            setEditingMovie(false);
+        try {
+            const response = await fetch(`/movies/${movie.id}`, {
+                method: 'PUT',
+                body: JSON.stringify(edited_movie),
+                headers: { 'Content-Type': 'application/json' }
+            });
+            if (response.ok) {
+                fetchMovies();
+                setEditingMovie(false);
+                toast.success(`Movie "${movie.title}" edited successfully `);
+            } else {
+                const error = await response.json();
+                toast.error(`Error while editing movie: ${error.detail}`);
+            }
+        } catch (error) {
+            toast.error(`Error while editing movie: ${error.message}`);
         }
-        
     }
 
     const [actors, setActors] = useState([]);
@@ -89,25 +122,48 @@ function App() {
     }, []);
 
     async function handleAddActor(actor) {
-        const response = await fetch('/actors', {
-            method: 'POST',
-            body: JSON.stringify(actor),
-            headers: { 'Content-Type': 'application/json' }
-        });
-
-        if (response.ok) {
-            setActors([...actors, actor]);
-            setAddingActor(false);
+        try {
+            const response = await fetch('/actors', {
+                method: 'POST',
+                body: JSON.stringify(actor),
+                headers: { 'Content-Type': 'application/json' }
+            });
+    
+            if (response.ok) {
+                setActors([...actors, actor]);
+                setAddingActor(false);
+                toast.success(`Actor ${actor.name} ${actor.surname} added`);
+            } else {
+                const error = await response.json();
+                toast.error(`Error while adding actor: ${error.detail}`);
+            }
+        } catch (error) {
+            toast.error(`Error while adding actor: ${error.message}`);
         }
     }
     
     async function handleDeleteActor(actor) {
-        const response = await fetch(`/actors/${actor.id}`, {
-            method: 'DELETE'
-        });
-        if (response.ok) {
-            setActors(actors.filter(m => m !== actor));
+        const confirmDelete = window.confirm(`Are you sure to delete ${actor.name} ${actor.surname}?`);
+        if (confirmDelete) {
+            try {
+                const response = await fetch(`/actors/${actor.id}`, {
+                    method: 'DELETE'
+                });
+                if (response.ok) {
+                    setActors(actors.filter(m => m !== actor));
+                    toast.success(`Actor ${actor.name} ${actor.surname} deleted`);
+                } else {
+                    const error = await response.json();
+                    toast.error(`Error while deleting actor: ${error.detail}`);
+                }
+            } catch (error) {
+                toast.error(`Error while deleting actor: ${error.message}`);
+            }
         }
+    }
+
+    async function handleSearchResults(results) {
+        setSearchResults(results);
     }
 
     return (
@@ -117,9 +173,10 @@ function App() {
             </div>
             <div class="row">
                 <div class="column column-75">
+                    <SearchBar onSearchResults={handleSearchResults} />
                     {movies.length === 0
                         ? <p>No movies yet. Maybe add something?</p>
-                        : <MoviesList movies={movies}
+                        : <MoviesList movies={searchResults.length > 0 ? searchResults: movies}
                                         onDeleteMovie={handleDeleteMovie}
                                         onEditMovie={handleOpenEditMovie}
                         />}
@@ -154,7 +211,7 @@ function App() {
                         : <button onClick={() => setAddingActor(true)}>Add an actor</button>}
                 </div>
             </div>
-
+            <ToastContainer />
         </div>
     );
 }
