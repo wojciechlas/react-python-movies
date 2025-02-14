@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from 'react-toastify';
 
 export default function SearchBar(props) {
     const [query, setQuery] = useState("");
@@ -9,11 +10,21 @@ export default function SearchBar(props) {
         // if (selectedActors.length > 0) {
         //   params.append("actors", selectedActors.join(","));
         // }
-        const response = await fetch(`/movies/search/vector?${params.toString()}`);
+        const response = await toast.promise(
+            fetch(`/movies/search/vector?${params.toString()}`),
+            {
+                pending: 'Searching...',
+                success: 'Search completed',
+                error: "Can't execute search 🤯"
+            }
+        );
         if (response.ok) {
           const results = await response.json();
           // Przekaż wyniki wyszukiwania do komponentu App
           props.onSearchResults(results);
+        } else {
+            const error = await response.json();
+            toast.error(`Error while searching: ${error.detail}`);
         }
     };
     

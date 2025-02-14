@@ -23,60 +23,86 @@ function App() {
     }, []);
 
     async function fetchMovies() {
-        const response = await fetch('/movies');
-        if (response.ok) {
-            const movies = await response.json();
-            setMovies(movies);
-        }
-        console.log(movies)
+        const response = await toast.promise(
+            fetch('/movies'),
+            {
+                pending: 'Loading movies...',
+                success: 'Movies loaded',
+                error: "Can't load movies 🤯"
+            }
+        );
+            if (response.ok) {
+                const movies = await response.json();
+                setMovies(movies);
+            } else {
+                const error = await response.json();
+                toast.error(`Error while loading movies: ${error.detail}`);
+                console.log(error)
+            }
     }
 
     async function fetchMovieActors(movieId) {
-        const response = await fetch(`/movies/${movieId}/actors`);
+        const response = await toast.promise(
+            fetch(`/movies/${movieId}/actors`),
+            {
+                pending: 'Loading actors...',
+                success: 'Actors loaded',
+                error: "Can't load actors 🤯"
+            }
+        );
         if (response.ok) {
           const actors = await response.json();
           return actors;
+        } else {
+            const error = await response.json();
+            toast.error(`Error while loading actors: ${error.detail}`);
+            console.log(error)
         }
         return;
       }
 
     async function handleAddMovie(movie) {
-        try {
-          const response = await fetch('/movies', {
-            method: 'POST',
-            body: JSON.stringify(movie),
-            headers: { 'Content-Type': 'application/json' }
-          });
-      
-          if (response.ok) {
+        setAddingMovie(false);
+        const response = await toast.promise(
+            fetch('/movies', {
+                method: 'POST',
+                body: JSON.stringify(movie),
+                headers: { 'Content-Type': 'application/json' }
+            }),
+            {
+                pending: 'Adding thr movie...',
+                success: 'The movie added',
+                error: "Can't add the movie 🤯"
+            }
+        );        
+        if (response.ok) {
             setMovies([...movies, movie]);
-            setAddingMovie(false);
-            toast.success(`Movie "${movie.title}" added`);
-          } else {
+        } else {
             const error = await response.json();
-            toast.error(`Error while adding movie: ${error.detail}`);
-          }
-        } catch (error) {
-          toast.error(`Error while adding movie: ${error.message}`);
+            toast.error(`Error while adding the movie: ${error.detail}`);
+            console.log(error)
         }
     }
 
     async function handleDeleteMovie(movie) {
         const confirmDelete = window.confirm(`Are you sure to delete "${movie.title}"?`);
         if (confirmDelete) {
-            try {
-                const response = await fetch(`/movies/${movie.id}`, {
+            const response = await toast.promise(
+                await fetch(`/movies/${movie.id}`, {
                     method: 'DELETE'
-                });
-                if (response.ok) {
-                    setMovies(movies.filter(m => m !== movie));
-                    toast.success(`Movie "${movie.title}" deleted`);
-                } else {
-                    const error = await response.json();
-                    toast.error(`Error while deleting movie: ${error.detail}`);
+                }),
+                {
+                    pending: 'Deleting the movie...',
+                    success: 'The movie deleted',
+                    error: "Can't delete the movie 🤯"
                 }
-            } catch (error) {
-                toast.error(`Error while deleting movie: ${error.message}`);
+            );
+            if (response.ok) {
+                setMovies(movies.filter(m => m !== movie));
+            } else {
+                const error = await response.json();
+                toast.error(`Error while deleting the movie: ${error.detail}`);
+                console.log(error)
             }
         }
     }
@@ -88,22 +114,24 @@ function App() {
     }
 
     async function handleEditMovie(edited_movie) {
-        try {
-            const response = await fetch(`/movies/${movie.id}`, {
+        setEditingMovie(false);
+        const response = await toast.promise(
+            fetch(`/movies/${movie.id}`, {
                 method: 'PUT',
                 body: JSON.stringify(edited_movie),
                 headers: { 'Content-Type': 'application/json' }
-            });
-            if (response.ok) {
-                fetchMovies();
-                setEditingMovie(false);
-                toast.success(`Movie "${movie.title}" edited successfully `);
-            } else {
-                const error = await response.json();
-                toast.error(`Error while editing movie: ${error.detail}`);
+            }),
+            {
+                pending: 'Updating the movie...',
+                success: 'The movie updated',
+                error: "Can't update the movie 🤯"
             }
-        } catch (error) {
-            toast.error(`Error while editing movie: ${error.message}`);
+        );
+        if (response.ok) {
+            fetchMovies();
+        } else {
+            const error = await response.json();
+            toast.error(`Error while editing movie: ${error.detail}`);
         }
     }
 
@@ -112,52 +140,65 @@ function App() {
 
     useEffect(() => {
         const fetchActors= async () => {
-            const response = await fetch('/actors');
+            const response = await toast.promise(
+                fetch('/actors'),
+                {
+                    pending: 'Loading actors...',
+                    success: 'Actors loaded',
+                    error: "Can't load actors 🤯"
+                }
+            );
             if (response.ok) {
                 const actors = await response.json();
                 setActors(actors);
+            } else {
+                const error = await response.json();
+                toast.error(`Error while loading actors: ${error.detail}`);
             }
         };
         fetchActors();
     }, []);
 
     async function handleAddActor(actor) {
-        try {
-            const response = await fetch('/actors', {
+        setAddingActor(false);
+        const response = await toast.promise(
+            fetch('/actors', {
                 method: 'POST',
                 body: JSON.stringify(actor),
                 headers: { 'Content-Type': 'application/json' }
-            });
-    
-            if (response.ok) {
-                setActors([...actors, actor]);
-                setAddingActor(false);
-                toast.success(`Actor ${actor.name} ${actor.surname} added`);
-            } else {
-                const error = await response.json();
-                toast.error(`Error while adding actor: ${error.detail}`);
+            }),
+            {
+                pending: 'Adding the actor...',
+                success: 'The actor loaded',
+                error: "Can't load the actor 🤯"
             }
-        } catch (error) {
-            toast.error(`Error while adding actor: ${error.message}`);
+        );
+        if (response.ok) {
+            setActors([...actors, actor]);
+        } else {
+            const error = await response.json();
+            toast.error(`Error while adding actor: ${error.detail}`);
         }
     }
     
     async function handleDeleteActor(actor) {
         const confirmDelete = window.confirm(`Are you sure to delete ${actor.name} ${actor.surname}?`);
         if (confirmDelete) {
-            try {
-                const response = await fetch(`/actors/${actor.id}`, {
+            const response = await toast.promise(
+                fetch(`/actors/${actor.id}`, {
                     method: 'DELETE'
-                });
-                if (response.ok) {
-                    setActors(actors.filter(m => m !== actor));
-                    toast.success(`Actor ${actor.name} ${actor.surname} deleted`);
-                } else {
-                    const error = await response.json();
-                    toast.error(`Error while deleting actor: ${error.detail}`);
+                }),
+                {
+                    pending: 'Deleting the actor...',
+                    success: 'The actor deleted',
+                    error: "Can't delete the actor 🤯"
                 }
-            } catch (error) {
-                toast.error(`Error while deleting actor: ${error.message}`);
+            );
+            if (response.ok) {
+                setActors(actors.filter(m => m !== actor));
+            } else {
+                const error = await response.json();
+                toast.error(`Error while deleting actor: ${error.detail}`);
             }
         }
     }
@@ -211,7 +252,11 @@ function App() {
                         : <button onClick={() => setAddingActor(true)}>Add an actor</button>}
                 </div>
             </div>
-            <ToastContainer />
+            <ToastContainer 
+                position="bottom-right"
+                autoClose={3000}
+                pauseOnHover
+                newestOnTop/>
         </div>
     );
 }
